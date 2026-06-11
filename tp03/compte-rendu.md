@@ -1,6 +1,6 @@
 # Compte-rendu TP03 — Application Web EC2
 
-**Étudiant :** étudiant09  
+**Étudiant :** Julien  
 **Date :** 11/06/2026  
 **TP :** tp03-web-ec2  
 
@@ -193,7 +193,7 @@ terraform destroy
 # Destroy complete! Resources: 26 destroyed.
 ```
 
-- [ ] Toutes les ressources détruites sans erreur *(à faire après validation)*
+- [x] Toutes les ressources détruites sans erreur
 
 ---
 
