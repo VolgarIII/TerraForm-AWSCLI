@@ -1,7 +1,7 @@
 # Compte-rendu TP03 — Application Web EC2
 
 **Étudiant :** étudiant09  
-**Date :** 10/06/2026  
+**Date :** 11/06/2026  
 **TP :** tp03-web-ec2  
 
 ---
@@ -22,10 +22,10 @@
 Internet
     │
     ▼
-[Bastion EC2] ── EIP ── subnet public eu-west-3a (10.0.1.0/24)
+[Bastion EC2] ── EIP 13.39.61.15 ── subnet public eu-west-3a (10.0.1.0/24)
     │ SSH (agent forwarding)
     ▼
-[Web EC2 eu-west-3a] ── subnet privé 10.0.101.0/24  ←── NAT GW (subnet public eu-west-3b)
+[Web EC2 eu-west-3a] ── subnet privé 10.0.101.0/24  ←── NAT GW 15.236.74.136
 [Web EC2 eu-west-3b] ── subnet privé 10.0.102.0/24  ←──'
 ```
 
@@ -78,16 +78,16 @@ terraform output
 ## Outputs obtenus
 
 ```
-bastion_public_ip     = "15.236.105.42"
-bastion_public_dns    = "ec2-15-236-105-42.eu-west-3.compute.amazonaws.com"
-ssh_bastion_command   = "ssh -A ec2-user@15.236.105.42"
+bastion_public_ip     = "13.39.61.15"
+bastion_public_dns    = "ec2-13-39-61-15.eu-west-3.compute.amazonaws.com"
+ssh_bastion_command   = "ssh -A ec2-user@13.39.61.15"
 web_private_ips       = {
-  "eu-west-3a" = "10.0.101.4"
-  "eu-west-3b" = "10.0.102.4"
+  "eu-west-3a" = "10.0.101.220"
+  "eu-west-3b" = "10.0.102.246"
 }
 web_instance_ids      = {
-  "eu-west-3a" = "i-0a1b2c3d4e5f67890"
-  "eu-west-3b" = "i-0b2c3d4e5f6789012"
+  "eu-west-3a" = "i-08486c28b56304163"
+  "eu-west-3b" = "i-0258469b5dbad71b5"
 }
 nat_gateway_public_ip = "15.236.74.136"
 vpc_id                = "vpc-0d65b21934ec3b054"
@@ -108,12 +108,14 @@ private_subnet_ids    = {
 ### 1. Connexion SSH bastion
 
 ```bash
-ssh-add ~/.ssh/id_rsa
-ssh -A ec2-user@15.236.105.42
-# The authenticity of host '15.236.105.42' can't be established.
-# Are you sure you want to continue connecting (yes/no)? yes
-# Warning: Permanently added '15.236.105.42' to the list of known hosts.
-# [ec2-user@ip-10-0-1-x ~]$
+ssh -A ec2-user@13.39.61.15
+# Warning: Permanently added '13.39.61.15' (ED25519) to the list of known hosts.
+#    ,     #_
+#    ~\_  ####_        Amazon Linux 2023
+#   ~~  \_#####\
+#   ~~     \###|
+#   ~~       \#/ ___   https://aws.amazon.com/linux/amazon-linux-2023
+# [ec2-user@ip-10-0-1-6 ~]$
 ```
 
 - [x] Connexion SSH bastion réussie
@@ -121,13 +123,11 @@ ssh -A ec2-user@15.236.105.42
 ### 2. Connexion SSH bastion → web (depuis le bastion)
 
 ```bash
-# Depuis le bastion :
-ssh ec2-user@10.0.101.4    # web eu-west-3a
-# [ec2-user@ip-10-0-101-4 ~]$
+ssh ec2-user@10.0.101.220   # web eu-west-3a
+# [ec2-user@ip-10-0-101-220 ~]$
 
-exit
-ssh ec2-user@10.0.102.4    # web eu-west-3b
-# [ec2-user@ip-10-0-102-4 ~]$
+ssh ec2-user@10.0.102.246   # web eu-west-3b
+# [ec2-user@ip-10-0-102-246 ~]$
 ```
 
 - [x] Connexion SSH bastion → web AZ-a réussie
@@ -136,8 +136,7 @@ ssh ec2-user@10.0.102.4    # web eu-west-3b
 ### 3. Test HTTP depuis le bastion
 
 ```bash
-# Depuis le bastion :
-curl http://10.0.101.4
+curl http://10.0.101.220
 # <!DOCTYPE html>
 # <html lang="fr">
 # <head><meta charset="UTF-8"><title>TP03 — Formation Terraform</title></head>
@@ -149,12 +148,9 @@ curl http://10.0.101.4
 # </body>
 # </html>
 
-curl http://10.0.102.4
-# <!DOCTYPE html>
-# ...
+curl http://10.0.102.246
 #   <p><strong>Instance :</strong> web-eu-west-3b</p>
 #   <p><strong>AZ :</strong>       eu-west-3b</p>
-# ...
 ```
 
 - [x] Réponse nginx web AZ-a : page HTML avec instance_id et AZ
@@ -178,13 +174,11 @@ aws ec2 describe-instances \
   --query "Reservations[*].Instances[*].[InstanceId,Tags[?Key=='Name'].Value|[0],State.Name]" \
   --output table
 
-# -----------------------------------------------------------------------
-# |                       DescribeInstances                             |
-# +----------------------+-----------------------------+----------------+
-# |  i-0a1b2c3d4e5f67890 |  formation-dev-bastion      |  running       |
-# |  i-0b2c3d4e5f6789012 |  formation-dev-web-eu-west-3a | running      |
-# |  i-0c3d4e5f67890123  |  formation-dev-web-eu-west-3b | running      |
-# +----------------------+-----------------------------+----------------+
+# +----------------------+--------------------------------+---------+
+# |  i-00326d2964d36de5f |  formation-dev-bastion         | running |
+# |  i-08486c28b56304163 |  formation-dev-web-eu-west-3a  | running |
+# |  i-0258469b5dbad71b5 |  formation-dev-web-eu-west-3b  | running |
+# +----------------------+--------------------------------+---------+
 ```
 
 - [x] 3 instances visibles (1 bastion + 2 web), état `running`
@@ -199,7 +193,7 @@ terraform destroy
 # Destroy complete! Resources: 26 destroyed.
 ```
 
-- [x] Toutes les ressources détruites sans erreur
+- [ ] Toutes les ressources détruites sans erreur *(à faire après validation)*
 
 ---
 
@@ -207,17 +201,21 @@ terraform destroy
 
 | Problème | Cause | Solution |
 |---|---|---|
-| `curl` timeout sur les web EC2 | nginx pas encore installé (dnf update + install en cours via NAT) | Attendre 2–3 minutes après le `apply` le temps que le user_data se termine |
-| SSH sur le bastion échoue immédiatement | L'instance n'est pas encore `running` | Attendre ~30s après le `apply` que l'EC2 soit dans l'état `running` |
+| `tfenv: Version could not be resolved` | tfenv installé mais aucune version définie | `tfenv install 1.9.8 && tfenv use 1.9.8` |
+| `No valid credential sources found` | `AWS_PROFILE` non défini dans la session WSL | `export AWS_PROFILE=formation` avant chaque session |
+| `InvalidKeyPair.Duplicate` | Clé SSH `formation-dev-key` déjà présente dans AWS depuis un précédent TP, et clé locale différente | `aws ec2 delete-key-pair --key-name formation-dev-key --region eu-west-3` puis `terraform plan/apply` |
+| `Saved plan is stale` | Le state AWS a changé (suppression key pair) après le plan | Relancer `terraform plan -out=tp03.tfplan` puis `terraform apply` |
+| `curl` timeout sur les web EC2 | nginx pas encore installé (dnf update + install en cours via NAT) | Attendre 2–3 minutes après le `apply` |
 
 ---
 
 ## Points clés retenus
 
 - `for_each` sur une map `az → subnet_id` génère des ressources avec des **clés stables** (l'AZ) — bien mieux que `count` qui utilise des indices fragiles
-- `templatefile("templates/nginx.sh.tftpl", {...})` permet d'injecter des variables HCL dans un script shell — le fichier `.tftpl` garde la coloration syntaxique shell dans les éditeurs
-- `user_data_replace_on_change = true` force la recréation de l'instance si le script change — sans ça, une modification du template n'aurait aucun effet sur l'instance existante
-- `lifecycle { create_before_destroy }` évite les downtime lors des remplacements de SG (le nouveau SG est créé avant que l'ancien soit détruit)
-- La référence inter-SG via `referenced_security_group_id` (au lieu d'un CIDR) est le **pattern de sécurité standard** en prod : si le bastion change d'IP, les règles restent valides
-- `data "aws_ami"` avec `most_recent = true` garantit de toujours utiliser l'AMI la plus récente — un AMI ID hardcodé serait obsolète en quelques mois
+- `templatefile("templates/nginx.sh.tftpl", {...})` permet d'injecter des variables HCL dans un script shell
+- `user_data_replace_on_change = true` force la recréation de l'instance si le script change
+- `lifecycle { create_before_destroy }` évite les downtime lors des remplacements de SG
+- La référence inter-SG via `referenced_security_group_id` est le **pattern de sécurité standard** en prod
+- `data "aws_ami"` avec `most_recent = true` garantit de toujours utiliser l'AMI la plus récente
 - L'agent SSH forwarding (`ssh -A`) permet de rebondir sur les instances privées **sans déposer la clé privée** sur le bastion
+- Toujours faire `export AWS_PROFILE=formation` avant les commandes Terraform/AWS CLI en WSL
