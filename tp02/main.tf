@@ -76,7 +76,7 @@ resource "aws_nat_gateway" "main" {
   subnet_id     = aws_subnet.public[var.azs[1]].id
 
   tags = {
-    Name = "${local.name_prefix}-nat-etudiant09"
+    Name = "${local.name_prefix}-nat-julien"
   }
 
   depends_on = [aws_internet_gateway.main]
@@ -141,7 +141,7 @@ resource "aws_security_group" "formation_bastion_sg" {
 
   tags = {
     Name  = "formation-bastion-sg"
-    Owner = "etudiant09"
+    Owner = "julien"
   }
 }
 

@@ -16,7 +16,7 @@ provider "aws" {
       Module      = "tp02-vpc"
       ManagedBy   = "Terraform"
       Environment = var.environment
-      Owner       = "etudiant09"
+      Owner       = "julien"
     }
   }
 }
