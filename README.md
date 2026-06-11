@@ -11,6 +11,8 @@ Travaux pratiques Terraform réalisés dans le cadre de la formation.
 | TP | Description | Statut |
 |---|---|---|
 | [tp01](./tp01/) | Bucket S3 sécurisé (versioning, SSE-S3, block public, TLS) | ✅ |
+| [tp02](./tp02/) | VPC complet 2 AZ (subnets pub/priv, IGW, NAT, route tables, SG bastion) | ✅ |
+| [tp03](./tp03/) | Application web EC2 (bastion + 2 web EC2, nginx, templatefile, key pair) | 🚧 |
 
 ---
 

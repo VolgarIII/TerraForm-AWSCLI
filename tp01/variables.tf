@@ -1,7 +1,13 @@
-variable "bucket_prefix" {
+variable "project" {
   type        = string
-  description = "Prefixe applique au nom du bucket S3"
+  description = "Nom du projet, utilise comme prefixe du bucket"
   default     = "formation-tp01"
+}
+
+variable "tags" {
+  type        = map(string)
+  description = "Tags supplementaires a appliquer aux ressources"
+  default     = {}
 }
 
 variable "environment" {

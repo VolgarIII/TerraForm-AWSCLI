@@ -7,7 +7,7 @@
 | TP | 01 — Bucket S3 sécurisé |
 | Durée | 1h30 |
 | Date | 09/06/2026 |
-| Étudiant | étudiant09 |
+| Étudiant | Julien |
 | Prérequis | Module 05 terminé ✅ |
 
 ---
