@@ -1,0 +1,24 @@
+#!/bin/bash
+set -euo pipefail
+
+# Mise à jour du système et installation de nginx
+dnf update -y
+dnf install -y nginx
+
+# Page d'accueil personnalisée
+cat > /usr/share/nginx/html/index.html <<EOF
+<!DOCTYPE html>
+<html lang="fr">
+<head><meta charset="UTF-8"><title>TP03 — Formation Terraform</title></head>
+<body>
+  <h1>Formation Terraform — TP03</h1>
+  <p><strong>Instance :</strong> ${instance_id}</p>
+  <p><strong>AZ :</strong>       ${availability_zone}</p>
+  <p><strong>Environnement :</strong> ${environment}</p>
+</body>
+</html>
+EOF
+
+# Démarrage et activation de nginx
+systemctl enable nginx
+systemctl start nginx
